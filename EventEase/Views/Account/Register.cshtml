@@ -1,0 +1,48 @@
+﻿@model EventEase.Models.RegisterViewModel
+@{
+    ViewData["HideFooter"] = true;
+}
+
+<body class="login-page">
+    <h2 class="login-header">Register</h2>
+
+    <form asp-action="Register" method="post" class="login-form">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div class="input-container">
+            <input asp-for="FirstName" placeholder="First Name" required class="input-field" autocomplete="off" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+
+        <div class="input-container">
+            <input asp-for="LastName" placeholder="Last Name" required class="input-field" autocomplete="off" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+
+        <div class="input-container">
+            <input asp-for="Email" placeholder="Email" required class="input-field" autocomplete="off" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+        <div class="input-container">
+            <input asp-for="PhoneNumber" placeholder="Phone Number" required class="input-field" autocomplete="off" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+        <div class="input-container">
+            <input asp-for="Password" type="password" placeholder="Password" required class="input-field" autocomplete="new-password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+        <div class="input-container">
+            <input asp-for="ConfirmPassword" type="password" placeholder="Confirm Password" required class="input-field" autocomplete="new-password" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
+        <button type="submit" class="submit-button">Register</button>
+</form>
+
+    <p class="register-prompt">Already have an account? <a asp-controller="Account" asp-action="Login" class="register-link">Login here</a></p>
+</body>
+
+     

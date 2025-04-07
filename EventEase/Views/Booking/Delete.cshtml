@@ -1,0 +1,37 @@
+﻿@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = "Delete Booking";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="container my-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-danger text-white text-center">
+            <h2 class="mb-0">Delete Booking</h2>
+        </div>
+        <div class="card-body p-4">
+            <h4 class="text-center mb-4">Are you sure you want to delete this booking?</h4>
+            <dl class="row">
+                <dt class="col-sm-3 fw-bold">Event:</dt>
+                <dd class="col-sm-9">@Model.Event?.EventName</dd>
+
+                <dt class="col-sm-3 fw-bold">Venue:</dt>
+                <dd class="col-sm-9">@Model.Venue?.VenueName</dd>
+
+                <dt class="col-sm-3 fw-bold">Booking Date:</dt>
+                <dd class="col-sm-9">@Model.BookingDate.ToString("yyyy-MM-dd")</dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="BookingId" />
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <input type="submit" value="Delete" class="btn btn-danger btn-lg px-5 shadow w-25" />
+                    <a asp-action="Index" class="btn btn-secondary btn-lg px-5 shadow w-25">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
