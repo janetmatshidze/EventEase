@@ -1,0 +1,537 @@
+﻿
+.navbar {
+    transition: background-color 0.3s ease;
+}
+
+body.homepage .navbar {
+    background-color: transparent !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+body.venue {
+    font-family: 'themundayfreeversion-regular';
+}
+
+    body.homepage .navbar .nav-link,
+    body.homepage .navbar .navbar-brand,
+    body.homepage .user-email,
+    body.homepage .navbar #login-icon svg {
+        color: white !important;
+        fill: white !important;
+    }
+
+
+body:not(.homepage) .navbar .nav-link,
+body:not(.homepage) .navbar .navbar-brand,
+body:not(.homepage) .user-email,
+body:not(.homepage) .navbar #login-icon svg {
+    color: black !important;
+    fill: black !important;
+}
+
+
+.banner {
+    width: 100%;
+    height: 100vh;
+    background-size: cover;
+    background-image: url('../images/barn.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+    .banner:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    max-width: 800px;
+    width: 90%;
+}
+
+    .banner-content h1 {
+        font-family: 'valentine baby', cursive;
+        font-size: 3.5em;
+        margin-top: 170px;
+    }
+.custom-icon-color {
+    color: cornflowerblue;
+    fill: cornflowerblue;
+}
+.venue-title {
+    font-family: 'akaylascript_personal', cursive;
+    font-weight: bold;
+}
+
+.card-title {
+    font-family: 'akaylascript_personal', cursive;
+    font-size: 2em;
+    font-weight: bold;
+}
+.btn-book-now {
+    background-color: rgba(255, 255, 255, 0.3); 
+    color: white;
+    font-weight: bold;
+    padding: 12px 30px;
+    margin-top: 50px;
+    border: 2px solid white;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+    .btn-book-now:hover {
+        background-color: white;
+        color: darkolivegreen;
+        border-color: #fff;
+    }
+
+
+.no-padding {
+    padding: 0;
+    max-width: 100%;
+}
+
+.login-page {
+    position: relative;
+    margin-bottom: 50px;
+    background-position: center;
+    background-image: url('../images/green-garden.jpg');
+    background-size: cover;
+}
+
+    .login-page::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        background-size: cover;
+        z-index: -1; 
+        opacity: 0.6; 
+    }
+
+body.login-page .navbar .nav-link,
+body.login-page .navbar .navbar-brand,
+body.login-page .user-email,
+body.login-page .navbar #login-icon svg {
+    color: white !important;
+    fill: white !important;
+}
+
+
+.login-page .nav-link:hover {
+        color: #f8f9fa !important;
+    }
+
+.welcome {
+    margin-top: 50px;
+    font-family:'valentine baby';
+    color:white;
+   
+}
+.nav-link {
+    margin-left: 20px;
+    font-size: 24px; 
+    font-family: 'geesor unique demo';
+    color: white !important; 
+}
+   
+
+
+.navbar-brand, .nav-link, #login-icon svg {
+    color: white !important;
+    fill: white !important;
+}
+.login-footer {
+    display: none;
+}
+
+    .navbar .text-dark {
+        color: white !important;
+    }
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'themundayfreeversion-regular';
+}
+
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 2em;
+    }
+
+    .nav-link {
+        font-size: 18px;
+    }
+
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    font-size: 1.2em;
+}
+
+#services {
+    padding: 80px 0 150px 0;
+    margin-top: 0 !important;
+    background-color: #f9f9f9;
+    margin-bottom: 100px;
+    padding-bottom: 150px;
+}
+
+#services h3{
+    font-family:'valentine baby';
+}
+.section-title {
+    font-size: 2.5em;
+    margin-bottom: 40px;
+    font-family: 'geesor unique demo';
+}
+
+.service-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+    .service-item img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .service-item h3 {
+        font-size: 1.8em;
+        margin-top: 20px;
+    }
+
+    .service-item p {
+        color: #555;
+    }
+
+
+@media (max-width: 768px) {
+    .welcome {
+        font-size: 2em;
+    }
+
+    .section-title {
+        font-size: 2em;
+    }
+}
+
+.btn-compact {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    height: 45px; /* Adjust as needed */
+    color: #3f3f3f !important;
+    background-color: #D3D3D3 !important;
+    border-radius: 5px;
+    border: none !important;
+}
+
+.btn-compact:hover {
+    background-color: gray !important;
+    color: white !important;
+}
+.bg-dark {
+    background-color: forestgreen !important;
+    background-size: cover;
+    background-position: center;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+#login-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 30px;
+}
+
+.login-header {
+    font-family: 'greatvibes-regular';
+    font-size: 5em;
+    margin-top: 25px;
+    color: white;
+    margin-bottom: 0px;
+}
+
+h2 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 25px;
+}
+
+a {
+    text-decoration: none;
+    color: #3498db;
+}
+
+
+
+.login-form {
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+
+}
+
+.input-container {
+    margin-bottom: 15px;
+    position: relative;
+    width: 100%; 
+    margin-left: 350px;
+    margin-right: auto;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    color: darkolivegreen;
+    border: 2px solid #ccc;
+    background: rgba(255, 255, 255, 0.7);
+}
+.venue-btn {
+    color: green;
+}
+
+.bg-dark2 {
+    background-color: #0080001A !important;
+    background-size: cover;
+    background-position: center;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    margin-left: 350px;
+    color: green;
+}
+
+.submit-button:hover {
+    opacity: 0.8;
+}
+
+.search-btn {
+    color: green !important;
+    background-color: #0080001A !important;
+    border: green !important;
+}
+
+.search-btn:hover {
+        background-color: green !important;
+        color: white !important;
+    }
+
+.details-btn {
+    border-radius: 5px;
+    border: none;
+    color: green !important;
+    background-color: #0080001A !important;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.details-btn:hover {
+        background-color: green !important;
+        color: white !important;
+    }
+.custom-btn {
+    border-radius: 5px;
+    border: none;
+    color: green !important;
+    background-color: #0080001A !important;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-bottom:50px;
+}
+
+ .custom-btn:hover {
+        background-color: green !important; 
+        color: white !important;
+    }
+
+
+ .validation-message {
+    font-size: 0.9em;
+    color: red;
+    margin-top: 5px;
+}
+
+.register-prompt {
+    text-align: center;
+    margin-top: 15px;
+    font-family: 'Segoe UI Variable Display';
+    color: white;
+}
+
+.register-link {
+    font-weight: bold;
+    color: green;
+    font-size: 2em;
+    font-family: 'valentine baby';
+}
+
+.btn-warning {
+    border-radius: 5px;
+    border: none;
+    color: #000435 !important;
+    background-color: #BCD2E8 !important;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-warning:hover {
+        background-color: navy !important; 
+        color: white !important;
+    }
+
+.btn-danger {
+    border-radius: 5px;
+    border: none;
+    color: red !important;
+    background-color: #FFADB0 !important;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+ .btn-danger:hover {
+        background-color: red !important; 
+        color: white !important;
+    }
+.login-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.login-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.login-dropdown a {
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #333;
+    }
+
+.login-dropdown a:hover {
+            background-color: #f8f9fa;
+        }
+
+.user-email {
+    margin-right: 5px;
+    font-family: 'akaylascript_personal';
+    font-weight:bold;
+    font-size: 20px;
+}
+.event-logo {
+    font-family: 'geesor unique demo';
+    color: white !important; 
+    font-size: 3em;
+}
+
+@font-face {
+    font-family: 'greatvibes-regular';
+    src: url('../fonts/greatvibes-regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'PlayfairDisplay';
+    src: url('/fonts/PlayfairDisplay-Regular.ttf')format('truetype');
+}
+@font-face {
+    font-family: 'geraldine personal use';
+    src: url('../fonts/geraldine personal use.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'calligraphy brilliant';
+    src: url('../fonts/calligraphy brilliant.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'ms stusi';
+    src: url('../fonts/ms stusi.otf') format('opentype');
+}
+@font-face {
+    font-family: 'themundayfreeversion-regular';
+    src: url('../fonts/themundayfreeversion-regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'valentine baby';
+    src: url('../fonts/valentine baby.otf') format('opentype');
+}
+@font-face {
+    font-family: 'loversquarrel-regular';
+    src: url('../fonts/loversquarrel-regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'flowerleafdemoregular';
+    src: url('../fonts/flowerleafdemoregular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'geesor unique demo';
+    src: url('../fonts/geesor unique demo.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'queen temoz trial';
+    src: url('../fonts/queen temoz trial.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'akaylascript_personal';
+    src: url('../fonts/akaylascript_personal.ttf') format('truetype');
+}

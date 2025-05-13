@@ -1,0 +1,32 @@
+﻿@model EventEase.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    ViewData["BodyClass"] = "login-page";
+    ViewData["HideFooter"] = true;
+}
+
+<body class="login-page">
+    <h2 class="login-header">Login</h2>
+    <form asp-action="Login" method="post" class="login-form">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div class="input-container">
+            <input asp-for="Email" placeholder="Email" required class="input-field" autocomplete="off" />
+            <span asp-validation-for="Email" class="text-danger validation-message"></span>
+        </div>
+
+        <div class="input-container">
+            <input asp-for="Password" type="password" placeholder="Password" required class="input-field" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="text-danger validation-message"></span>
+        </div>
+
+        <button type="submit" class="submit-button">Login</button>
+    </form>
+
+    <p class="register-prompt">Don't have an account? <a asp-controller="Account" asp-action="Register" class="register-link">Register here</a></p>
+</body>
+
+
+
+
+ 

@@ -1,0 +1,337 @@
+﻿@model EventEase.Models.ViewModels.EventViewModel
+
+<body class="venue">
+    <div class="container-fluid px-4 py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-dark venue-title">Our Events</h1>
+            <a href="@Url.Action("Create")" class="btn custom-btn shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i>Create New Event
+            </a>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success position-fixed top-0 end-0 m-4 fade show" role="alert" style="z-index: 9999;">
+                <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-warning position-fixed top-0 end-0 m-4 fade show" role="alert" style="z-index: 9999;">
+                <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="events-section">
+            <h2 class="text-dark mb-4 venue-title">Upcoming Events</h2>
+            @if (Model.UpcomingEvents.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @foreach (var eventModel in Model.UpcomingEvents)
+                    {
+                        <div class="col">
+                            <div class="card event-card h-120 shadow-sm">
+                                <div class="card-image-container">
+                                    <img src="@(!string.IsNullOrEmpty(eventModel.ImageFile) ? eventModel.ImageFile : "/images/default-event.jpg")"
+                                         class="card-img-top"
+                                         alt="@eventModel.EventName"
+                                         onerror="this.src='/images/default-event.jpg';">
+                                </div>
+
+                                <div class="card-body">
+                                    <h5 class="card-title">@eventModel.EventName</h5>
+                                    <div class="event-details mb-3">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-calendar-event me-2 text-primary"></i>
+                                            <span>@eventModel.EventDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-clock me-2 text-primary"></i>
+                                            <span>@eventModel.EventDate.ToString("hh:mm tt")</span>
+                                        </div>
+                                        <div class="event-description">
+                                            @if (!string.IsNullOrEmpty(eventModel.Description))
+                                            {
+                                                @if (eventModel.Description.Length > 100)
+                                                {
+                                                    <p id="description-@eventModel.EventId">@eventModel.Description.Substring(0, 100)... <a href="#" class="read-more-link" data-event-id="@eventModel.EventId">Read more</a></p>
+                                                    <div id="full-description-@eventModel.EventId" class="d-none">@eventModel.Description</div>
+                                                }
+                                                else
+                                                {
+                                                    <p>@eventModel.Description</p>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Option to View Original Image after Description -->
+                                    @if (!string.IsNullOrEmpty(eventModel.ImageFile))
+                                    {
+                                        <div class="image-link-container mt-2">
+                                            <a href="@eventModel.ImageFile"
+                                               target="_blank"
+                                               class="text-muted small">
+                                                <i class="bi bi-download me-2"></i> Download Image
+                                            </a>
+                                        </div>
+                                    }
+
+                                    <br />
+                                    <div class="card-actions d-flex justify-content-between">
+                                        <a href="@Url.Action("Edit", new { id = eventModel.EventId })" class="btn btn-outline-warning btn-sm">
+                                            <i class="bi bi-pencil me-1"></i>Edit
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = eventModel.EventId })" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash me-1"></i>Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info venue-title">No upcoming events</div>
+            }
+        </div>
+
+        <div class="events-section mt-5">
+            <h2 class="text-dark mb-4 venue-title">Past Events</h2>
+            @if (Model.PastEvents.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @foreach (var eventModel in Model.PastEvents)
+                    {
+                        <div class="col">
+                            <div class="card event-card h-100 shadow-sm past-event">
+                                <div class="card-image-container opacity-50">
+                                    <img src="@(!string.IsNullOrEmpty(eventModel.ImageFile) ? eventModel.ImageFile : "/images/default-event.jpg")"
+                                         class="card-img-top"
+                                         alt="@eventModel.EventName"
+                                         onerror="this.src='/images/default-event.jpg';">
+                                </div>
+
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted">@eventModel.EventName</h5>
+                                    <div class="event-details mb-3 text-muted">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-calendar-check me-2"></i>
+                                            <span>@eventModel.EventDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-clock me-2"></i>
+                                            <span>@eventModel.EventDate.ToString("hh:mm tt")</span>
+                                        </div>
+                                        <div class="event-description">
+                                            @if (!string.IsNullOrEmpty(eventModel.Description))
+                                            {
+                                                @if (eventModel.Description.Length > 100)
+                                                {
+                                                    <p id="description-@eventModel.EventId">@eventModel.Description.Substring(0, 100)... <a href="#" class="read-more-link" data-event-id="@eventModel.EventId">Read more</a></p>
+                                                    <div id="full-description-@eventModel.EventId" class="d-none">@eventModel.Description</div>
+                                                }
+                                                else
+                                                {
+                                                    <p>@eventModel.Description</p>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Option to View Original Image after Description -->
+                                    @if (!string.IsNullOrEmpty(eventModel.ImageFile))
+                                    {
+                                        <div class="image-link-container mt-2">
+                                            <a href="@eventModel.ImageFile"
+                                               target="_blank"
+                                               class="text-muted small">
+                                                <i class="bi bi-download me-2"></i> Download Image
+                                            </a>
+                                        </div>
+                                    }
+
+
+                                    <div class="card-actions d-flex justify-content-between">
+                                        <a href="@Url.Action("Edit", new { id = eventModel.EventId })" class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-pencil me-1"></i>View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">No past events</div>
+            }
+        </div>
+    </div>
+</body>
+
+<!-- Styling -->
+<style>
+
+    .image-link-container a {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+        .image-link-container a:hover {
+            text-decoration: none;
+        }
+
+    .view-original-link {
+        text-decoration: none; /* No underline by default */
+        position: relative;
+        top: -20px;
+    }
+
+        .view-original-link:hover,
+        .view-original-link:focus {
+            text-decoration: underline; /* Underline when hovered or focused */
+        }
+
+    .past-event {
+        opacity: 0.7;
+    }
+
+        .past-event:hover {
+            opacity: 0.9;
+        }
+
+    .event-description {
+        max-height: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .read-more-link {
+        color: #0d6efd;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+        .read-more-link:hover {
+            text-decoration: underline;
+        }
+
+    .modal-description {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .floating-description {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        z-index: 1000;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .close-description {
+        display: inline-block;
+        margin-top: 15px;
+        color: #dc3545;
+        cursor: pointer;
+    }
+
+    .event-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    .card-image-container {
+        height: 250px;
+        overflow: hidden;
+    }
+
+        .card-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card-image-container img {
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+        }
+</style>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.read-more-link').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                var eventId = this.getAttribute('data-event-id');
+                var fullDescription = document.getElementById('full-description-' + eventId);
+
+                var existingBox = document.querySelector('.floating-description');
+                if (existingBox) {
+                    existingBox.remove();
+                }
+
+                var floatingBox = document.createElement('div');
+                floatingBox.classList.add('floating-description');
+                floatingBox.innerHTML = `
+                    <h5>Full Description</h5>
+                    <div>${fullDescription.innerHTML}</div>
+                    <a href="#" class="close-description">Close</a>
+                `;
+
+                document.body.appendChild(floatingBox);
+
+                var overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                overlay.style.zIndex = '999';
+                overlay.classList.add('description-overlay');
+                document.body.appendChild(overlay);
+
+                floatingBox.querySelector('.close-description').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    floatingBox.remove();
+                    document.querySelector('.description-overlay').remove();
+                });
+
+                overlay.addEventListener('click', function () {
+                    floatingBox.remove();
+                    overlay.remove();
+                });
+            });
+        });
+    });
+</script>
+
+<!-- Bootstrap and Icons -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">

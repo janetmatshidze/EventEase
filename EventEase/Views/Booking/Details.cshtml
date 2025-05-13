@@ -1,0 +1,91 @@
+﻿@model EventEase.Models.BookingDetails
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<div class="container-fluid px-4 py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Booking Details</h2>
+        <a asp-action="Manage" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h4 class="mb-0">Booking #@Model.BookingId</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2 mb-3">Event Information</h5>
+                    <div class="mb-3">
+                        <strong>Event Name:</strong>
+                        <span>@Model.EventName</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Event Date:</strong>
+                        <span>@(Model.EventDate.HasValue ? Model.EventDate.Value.ToString("MMMM dd, yyyy") : "N/A")</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p>@(string.IsNullOrEmpty(Model.EventDescription) ? "No description available" : Model.EventDescription)</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2 mb-3">Venue Information</h5>
+                    <div class="mb-3">
+                        <strong>Venue Name:</strong>
+                        <span>@Model.VenueName</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Location:</strong>
+                        <span>@Model.VenueLocation</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Capacity:</strong>
+                        <span>@Model.VenueCapacity</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2 mb-3">Customer Information</h5>
+                    <div class="mb-3">
+                        <strong>Name:</strong>
+                        <span>@(string.IsNullOrEmpty(Model.CustomerName) ? "N/A" : Model.CustomerName)</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Email:</strong>
+                        <span>@Model.Email</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Phone:</strong>
+                        <span>@(string.IsNullOrEmpty(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2 mb-3">Booking Information</h5>
+                    <div class="mb-3">
+                        <strong>Booking ID:</strong>
+                        <span>@Model.BookingId</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Booking Date:</strong>
+                        <span>@Model.BookingDate.ToString("MMMM dd, yyyy")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+             @*    <a asp-action="Edit" asp-route-id="@Model.BookingId" class="btn btn-primary me-2">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.BookingId" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </a> *@
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+﻿@model EventEase.Models.Booking
+@{
+    ViewData["Title"] = "Create Booking";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="container my-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header text-center bg-dark text-white">
+            <h2 class="mb-0">Create New Booking</h2>
+        </div>
+        <div class="card-body p-4">
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (var modelState in ViewData.ModelState.Values)
+                        {
+                            foreach (var error in modelState.Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form asp-action="Create" method="post" novalidate>
+                <input type="hidden" asp-for="EventName" />
+                <input type="hidden" asp-for="VenueName" />
+                <input type="hidden" asp-for="Email" />
+
+                <div class="mb-3">
+                    <label asp-for="EventId" class="form-label fw-bold">Event</label>
+                    <select asp-for="EventId" class="form-control" required>
+                        <option value="">-- Select Event --</option>
+                        @foreach (var item in ViewBag.Events)
+                        {
+                            <option value="@item.EventId">@item.EventName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="EventId" class="text-danger" style="display:none;"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="VenueId" class="form-label fw-bold">Venue</label>
+                    <select asp-for="VenueId" class="form-control" required>
+                        <option value="">-- Select Venue --</option>
+                        @foreach (var item in ViewBag.Venues)
+                        {
+                            <option value="@item.VenueId">@item.VenueName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="VenueId" class="text-danger" style="display:none;"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BookingDate" class="form-label fw-bold">Booking Date</label>
+                    <input asp-for="BookingDate" type="date" class="form-control" required />
+                    <span asp-validation-for="BookingDate" class="text-danger" style="display:none;"></span>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="submit" class="btn custom-btn btn-lg px-5 shadow w-25">Create Booking</button>
+                    <a asp-action="Index" class="btn btn-secondary btn-compact btn-lg px-5 shadow w-25">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.querySelector("form").addEventListener("submit", function (event) {
+            let inputs = document.querySelectorAll(".form-control");
+            let valid = true;
+            inputs.forEach(input => {
+                let errorSpan = input.nextElementSibling;
+                if (input.value.trim() === "") {
+                    errorSpan.style.display = "block";
+                    valid = false;
+                } else {
+                    errorSpan.style.display = "none";
+                }
+            });
+            if (!valid) {
+                event.preventDefault();
+            }
+        });
+    </script>
+}

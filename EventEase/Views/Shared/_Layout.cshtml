@@ -1,0 +1,196 @@
+﻿@using Microsoft.AspNetCore.Http
+@{
+    var userEmail = Context.Session.GetString("UserEmail");
+    var isBookingSpecialist = userEmail == "specialist@eventease.com";
+    var isHomePage = ViewData["IsHomePage"] as bool? == true;
+    var hideFooter = ViewData["HideFooter"] as bool? ?? false;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EventEase</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EventEase.styles.css" asp-append-version="true" />
+    
+</head>
+
+<body class="@(isHomePage ? "homepage" : ViewData["BodyClass"]?.ToString())">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand event-logo" asp-area="" asp-controller="Home" asp-action="Index">EventEase</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Venue" asp-action="Index">Venues</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Event" asp-action="Index">Events</a>
+                        </li>
+                        @if (!string.IsNullOrEmpty(userEmail))
+
+                        {
+                            // Show "My Bookings" link only for regular users
+                            if (!isBookingSpecialist)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Booking" asp-action="Index">My Bookings</a>
+                                </li>
+
+                            }
+
+                            // Show "Manage" link only for booking specialist
+                            if (isBookingSpecialist)
+                            {
+
+                                <li class="nav-item">
+
+                                    <a class="nav-link" asp-area="" asp-controller="Booking" asp-action="Manage">Manage Bookings</a>
+
+                                </li>
+                            }
+                        }
+
+                    </ul>
+
+
+                    <div class="login-container">
+                        @if (!string.IsNullOrEmpty(userEmail))
+                        {
+                            <div id="user-profile" class="d-flex align-items-center">
+                                <span class="user-email">@userEmail</span>
+                            </div>
+                            <div id="profile-dropdown" class="login-dropdown">
+                                <a href="javascript:void(0)" id="logout-btn">Logout</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="login-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                     class="bi bi-person-fill" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                                </svg>
+                            </div>
+                            <div id="login-dropdown" class="login-dropdown">
+                                <a asp-controller="Account" asp-action="Login">Login</a>
+                                <a asp-controller="Account" asp-action="Register">Register</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+        @if (isHomePage)
+        {
+            <!-- Banner Section -->
+            <section class="banner">
+                <div class="banner-content">
+                    <h1>Bringing Dreams to Life, One Event at a Time</h1>
+                    @if (!string.IsNullOrEmpty(userEmail))
+                    {
+                        <form method="get" asp-controller="Booking" asp-action="Index">
+                            <button class="btn-book-now" type="submit">Book Now</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="btn-book-now" onclick="redirectToLogin()">Book Now</button>
+                    }
+                </div>
+            </section>
+
+
+            <!-- Services Section -->
+            <section id="services" class="mt-5">
+                <div class="container text-center">
+                    <h2 class="section-title">Our Services</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="service-item">
+                                <img src="~/images/party.png" alt="Service 1">
+                                <h3>Milestone Celebrations</h3>
+                                <p> Celebrate life's special moments in style - from birthday parties 
+                                    and anniversaries to baby showers and graduation events. Our versatile spaces can be customized to match any theme or vision, creating the perfect backdrop for your cherished memories.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="service-item">
+                                <img src="~/images/marriage.jpg" alt="Service 2">
+                                <h3>Wedding Celebrations</h3>
+                                <p>Transform your special day into an unforgettable experience with our elegant wedding venues. From intimate ceremonies to grand receptions, our customizable spaces and dedicated 
+                                    planning team ensure your wedding day exceeds all expectations.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="service-item">
+                                <img src="~/images/conference.jpg" alt="Service 3">
+                                <h3>Corporate Events</h3>
+                                <p>Elevate your business gatherings with our  conference facilities. 
+                                    Featuring advanced audio-visual technology, flexible seating arrangements, and professional catering options, we create the perfect environment for productive meetings and memorable corporate events.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    @if (!hideFooter)
+    {
+        <footer class="border-top footer text-muted mt-5">
+            <div class="container">
+                &copy; 2025 - EventEase - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            $("#login-icon").click(function (e) {
+                e.stopPropagation();
+                $("#login-dropdown").toggle();
+            });
+
+            $("#user-profile").click(function (e) {
+                e.stopPropagation();
+                $("#profile-dropdown").toggle();
+            });
+
+            $(document).click(function () {
+                $(".login-dropdown").hide();
+            });
+
+            $("#logout-btn").click(function () {
+                window.location.href = '@Url.Action("Logout", "Account")';
+            });
+        });
+
+        function redirectToLogin() {
+            window.location.href = '@Url.Action("Login", "Account")';
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
