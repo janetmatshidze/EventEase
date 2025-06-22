@@ -2,31 +2,92 @@
 @{
     ViewData["Title"] = "Manage Bookings";
 }
-
 <div class="container-fluid px-4 py-5">
-
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form asp-action="Manage" method="get" class="row g-3 align-items-end">
-                <div class="col-md-6">
+                <div class="col-md-2">
                     <label for="searchTerm" class="form-label">Search Bookings</label>
                     <input type="text" id="searchTerm" name="searchTerm" class="form-control"
-                           value="@ViewBag.SearchTerm" placeholder="Enter Booking ID or Event Name">
+                           value="@ViewBag.SearchTerm" placeholder="Booking ID or Event Name">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label for="eventTypeId" class="form-label">Event Type</label>
+                    <select id="eventTypeId" name="eventTypeId" class="form-select">
+                        <option value="">All Types</option>
+                        @if (ViewBag.EventTypes != null)
+                        {
+                            @foreach (var eventType in (IEnumerable<EventEase.Models.EventType>)ViewBag.EventTypes)
+                            {
+                                var isSelected = ViewBag.SelectedEventTypeId != null && (int)ViewBag.SelectedEventTypeId == eventType.EventTypeId;
+                                if (isSelected)
+                                {
+                                    <option value="@eventType.EventTypeId" selected>@eventType.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@eventType.EventTypeId">@eventType.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="availability" class="form-label">Venue Availability</label>
+                    <select id="availability" name="availability" class="form-select">
+                        <option value="">All Statuses</option>
+                        @{
+                            var selectedAvailability = ViewBag.SelectedAvailability as string;
+                        }
+                        @if (selectedAvailability == "Available")
+                        {
+                            <option value="Available" selected>Available</option>
+                        }
+                        else
+                        {
+                            <option value="Available">Available</option>
+                        }
+                        @if (selectedAvailability == "Unavailable")
+                        {
+                            <option value="Unavailable" selected>Unavailable</option>
+                        }
+                        else
+                        {
+                            <option value="Unavailable">Unavailable</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control"
+                           value="@ViewBag.StartDate">
+                </div>
+                <div class="col-md-2">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control"
+                           value="@ViewBag.EndDate">
+                </div>
+                <div class="col-md-1">
                     <button type="submit" class="btn search-btn btn-outline-secondary py-2 w-100">
-                        <i class="bi bi-search me-2"></i>Search
+                        <i class="bi bi-search me-1"></i>Filter
                     </button>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-1">
                     <a asp-action="Manage" class="btn btn-outline-secondary py-2 w-100">
-                        <i class="bi bi-x-circle me-2"></i>Clear
+                        <i class="bi bi-x-circle me-1"></i>Clear
                     </a>
                 </div>
+                <div class="col-md-2">
+                    <a asp-action="SyncVenueAvailability" class="btn btn-outline-secondary py-2 w-100">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Sync All Venues
+                    </a>
 
+                </div>
             </form>
         </div>
     </div>
+
+
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -40,12 +101,14 @@
         <table class="table table-hover table-striped">
             <thead class="table-light">
                 <tr>
-                    <th>ID</th>
+                    <th>BookingID</th>
                     <th>Event</th>
                     <th>Venue</th>
                     <th>Customer</th>
-                    <th>Booking Date</th>
+                    <th>Event Type</th>
+                    <th>Venue Availability</th>
                     <th>Event Date</th>
+                    <th>Booking Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -57,11 +120,21 @@
                         <td>@booking.EventName</td>
                         <td>@booking.VenueName</td>
                         <td>@(string.IsNullOrEmpty(booking.CustomerName) ? booking.Email : booking.CustomerName)</td>
-                        <td>@booking.BookingDate.ToString("MM/dd/yyyy")</td>
+                        <td>@booking.EventTypeName</td>
+                        <td>
+                            @{
+                                // Get venue availability from the database
+                                var venue = ViewBag.Venues != null ?
+                                ((IEnumerable<EventEase.Models.Venue>)ViewBag.Venues).FirstOrDefault(v => v.VenueId == booking.VenueId) : null;
+                                string availabilityStatus = venue?.Availability ?? "Unknown";
+                                string badgeClass = availabilityStatus == "Available" ? "bg-success" : "bg-danger";
+                            }
+                            <span class="badge @badgeClass">@availabilityStatus</span>
+                        </td>
                         <td>@(booking.EventDate.HasValue ? booking.EventDate.Value.ToString("MM/dd/yyyy") : "N/A")</td>
+                        <td>@booking.BookingDate.ToString("MM/dd/yyyy")</td>
                         <td>
                             <div class="btn-group" role="group">
-
                                 <a asp-action="Details" asp-route-id="@booking.BookingId" class="btn btn-sm details-btn btn-info">
                                     <i class="bi bi-info-circle me-1"></i>Details
                                 </a>
@@ -76,7 +149,7 @@
     @if (!Model.Any())
     {
         <div class="alert alert-info mt-4">
-            <i class="bi bi-info-circle me-2"></i>No bookings found.
+            <i class="bi bi-info-circle me-2"></i>No bookings found matching the selected criteria.
         </div>
     }
 </div>
@@ -94,5 +167,25 @@
         display: inline-flex;
         align-items: center;
         transition: all 0.3s ease;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .badge {
+        font-size: 0.85em;
+        padding: 0.5em 0.75em;
     }
 </style>

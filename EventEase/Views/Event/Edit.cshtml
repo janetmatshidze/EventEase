@@ -54,6 +54,15 @@
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
+                <!-- Fixed Event Type Dropdown -->
+                <div class="mb-3">
+                    <label asp-for="EventTypeId" class="form-label fw-bold">Event Type</label>
+                    <select asp-for="EventTypeId" asp-items="ViewBag.EventTypes" class="form-select" required>
+                        <option value="">Select Event Type</option>
+                    </select>
+                    <span asp-validation-for="EventTypeId" class="text-danger"></span>
+                </div>
+
                 <div class="mb-3">
                     <label asp-for="ImageUpload" class="form-label fw-bold">Event Image</label>
                     @if (!string.IsNullOrEmpty(Model.ImageFile))

@@ -28,5 +28,10 @@ namespace EventEase.Models
         [Display(Name = "Upload Image")]
         public IFormFile ImageUpload { get; set; }
 
+        [Display(Name = "Event Type")]
+    public int EventTypeId { get; set; }
+
+
+    public EventType EventType { get; set; }
     }
 }

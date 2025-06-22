@@ -129,11 +129,14 @@
         </div>
         <div class="card-body p-4">
             <form asp-action="Create" enctype="multipart/form-data" novalidate>
+                <!-- Event Name -->
                 <div class="mb-3">
                     <label asp-for="EventName" class="form-label fw-bold">Event Name</label>
                     <input asp-for="EventName" class="form-control" placeholder="Enter event name" required />
                     <span asp-validation-for="EventName" class="text-danger" style="display:none;"></span>
                 </div>
+
+                <!-- Event Date -->
                 <div class="mb-3">
                     <label asp-for="EventDate" class="form-label fw-bold">Event Date</label>
                     <div class="input-group date" id="datetimepicker" data-target-input="nearest">
@@ -144,32 +147,46 @@
                     </div>
                     <span asp-validation-for="EventDate" class="text-danger" style="display:none;"></span>
                 </div>
+
+                <!-- Description -->
                 <div class="mb-3">
                     <label asp-for="Description" class="form-label fw-bold">Event Description</label>
                     <textarea asp-for="Description" class="form-control" placeholder="Enter event description" rows="4" required></textarea>
                     <span asp-validation-for="Description" class="text-danger" style="display:none;"></span>
                 </div>
 
-                <!-- File Upload Section (Replacing the URL input) -->
+                <!-- Event Type -->
+                <div class="mb-3 col-md-6">
+                    <label asp-for="EventTypeId" class="form-label fw-bold">Event Type</label>
+                    <select asp-for="EventTypeId" class="form-select" required>
+                        <option value="">Select Type</option>
+                        @if (ViewBag.EventTypes != null)
+                        {
+                            @foreach (var eventType in (IEnumerable<EventEase.Models.EventType>)ViewBag.EventTypes)
+                            {
+                                <option value="@eventType.EventTypeId">@eventType.Name</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="EventTypeId" class="text-danger"></span>
+                </div>
+                <!-- File Upload -->
                 <div class="mb-3">
                     <label asp-for="ImageUpload" class="form-label fw-bold">Event Image</label>
                     <input asp-for="ImageUpload" class="form-control" type="file" id="imageUpload" accept="image/*" required />
                     <span asp-validation-for="ImageUpload" class="text-danger" style="display:none;"></span>
                     <small class="form-text text-muted">Image will be uploaded to Azure Blob Storage</small>
 
-                    <!-- File info will be injected here -->
                     <div class="file-info" id="fileInfo">No file selected</div>
-
-                    <!-- Image Preview -->
                     <div class="image-preview-container" id="imagePreviewContainer">
                         <img id="imagePreview" src="#" alt="Preview" />
                     </div>
                 </div>
 
-
+                <!-- Submit Buttons -->
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <button type="submit" class="btn custom-btn btn-lg px-5 shadow w-25">Create Event</button>
-                    <a asp-action="Index" class="btn btn-secondary btn-compact btn-lg px-5 shadow w-25">Cancel</a>
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow w-25">Create Event</button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg px-5 shadow w-25">Cancel</a>
                 </div>
             </form>
         </div>
@@ -186,10 +203,11 @@
 
     <script>
         $(function () {
-            // Initialize the datetime picker with a calendar view
+            // Initialize datetime picker
             $('#datetimepicker').datetimepicker({
                 format: 'YYYY-MM-DD HH:mm',
-                sideBySide: true,  // Shows calendar and clock side by side
+                sideBySide: true,
+                useCurrent: true,
                 icons: {
                     time: 'fas fa-clock',
                     date: 'fas fa-calendar',
@@ -200,37 +218,31 @@
                     today: 'fas fa-calendar-day',
                     clear: 'fas fa-trash',
                     close: 'fas fa-times'
-                },
-                // Default current date and time
-                useCurrent: true
+                }
             });
 
-            // Ensure the calendar button is the full height of the input
+            // Match calendar button height
             function adjustCalendarButtonHeight() {
                 const inputHeight = $('.datetimepicker-input').outerHeight();
                 $('.calendar-button .input-group-text').css('height', inputHeight + 'px');
             }
-
-            // Run on page load and window resize
             adjustCalendarButtonHeight();
             $(window).resize(adjustCalendarButtonHeight);
 
-            // Image upload handling
-            $('#imageUpload').change(function() {
+            // Image upload preview
+            $('#imageUpload').change(function () {
                 const file = this.files[0];
                 const fileInfo = $('#fileInfo');
                 const imagePreviewContainer = $('#imagePreviewContainer');
                 const imagePreview = $('#imagePreview');
 
                 if (file) {
-                    // Show file info
                     const fileName = file.name;
                     const fileSize = (file.size / 1024).toFixed(2) + ' KB';
                     fileInfo.html(`<i class="fas fa-file-image me-1"></i> ${fileName} (${fileSize})`);
 
-                    // Show preview
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         imagePreview.attr('src', e.target.result);
                         imagePreviewContainer.show();
                     }
@@ -240,29 +252,26 @@
                     imagePreviewContainer.hide();
                 }
             });
-        });
 
-        // Form validation
-        document.querySelector("form").addEventListener("submit", function(event) {
-            let inputs = document.querySelectorAll(".form-control:not(#imageUpload)"); // Don't validate file input
-            let valid = true;
-
-            inputs.forEach(input => {
-                if(input.hasAttribute('required')) {
-                    let errorSpan = input.closest('.mb-3').querySelector(".text-danger");
-                    if (input.value.trim() === "") {
-                        errorSpan.style.display = "block";
-                        errorSpan.textContent = "This field is required";
-                        valid = false;
+            // Basic client-side validation for required fields
+            document.querySelector("form").addEventListener("submit", function (event) {
+                let isValid = true;
+                this.querySelectorAll('[required]').forEach(input => {
+                    const span = input.parentElement.querySelector('.text-danger');
+                    if (!input.value || (input.type === "file" && input.files.length === 0)) {
+                        input.classList.add('is-invalid');
+                        if (span) span.style.display = 'block';
+                        isValid = false;
                     } else {
-                        errorSpan.style.display = "none";
+                        input.classList.remove('is-invalid');
+                        if (span) span.style.display = 'none';
                     }
+                });
+
+                if (!isValid) {
+                    event.preventDefault();
                 }
             });
-
-            if (!valid) {
-                event.preventDefault();
-            }
         });
     </script>
 }

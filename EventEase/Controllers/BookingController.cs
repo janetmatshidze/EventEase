@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EventEase.Controllers
 {
@@ -136,6 +137,10 @@ namespace EventEase.Controllers
                 {
                     _context.Bookings.Add(booking);
                     await _context.SaveChangesAsync();
+
+                    // Auto-sync venue availability after creating booking
+                    await SyncVenueAvailabilityForVenue(booking.VenueId.Value);
+
                     TempData["SuccessMessage"] = "Booking created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -276,8 +281,20 @@ namespace EventEase.Controllers
             {
                 try
                 {
+                    // Store the old venue ID in case it changed
+                    var oldBooking = await _context.Bookings.AsNoTracking().FirstOrDefaultAsync(b => b.BookingId == id);
+                    int? oldVenueId = oldBooking?.VenueId;
+
                     _context.Update(booking);
                     await _context.SaveChangesAsync();
+
+                    // Auto-sync venue availability for both old and new venues
+                    if (oldVenueId.HasValue && oldVenueId != booking.VenueId)
+                    {
+                        await SyncVenueAvailabilityForVenue(oldVenueId.Value);
+                    }
+                    await SyncVenueAvailabilityForVenue(booking.VenueId.Value);
+
                     TempData["SuccessMessage"] = "Booking updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -296,7 +313,8 @@ namespace EventEase.Controllers
                 {
                     ModelState.AddModelError("", "An error occurred while updating the booking: " + ex.Message);
                 }
-            }
+            
+        }
 
             // Reload dropdowns on error
             ViewBag.Events = await _context.Events.Where(e => e.EventDate >= DateTime.Now.Date).ToListAsync();
@@ -356,55 +374,217 @@ namespace EventEase.Controllers
                 return NotFound();
             }
 
+            // Store venue ID before deletion for auto-sync
+            int? venueIdToSync = booking.VenueId;
+
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
+
+            // Auto-sync venue availability after deleting booking
+            if (venueIdToSync.HasValue)
+            {
+                await SyncVenueAvailabilityForVenue(venueIdToSync.Value);
+            }
 
             TempData["SuccessMessage"] = "Booking deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
-
         [HttpGet]
-        public IActionResult ManageAsSpecialist()
-
+        public async Task<IActionResult> Manage(string searchTerm, int? eventTypeId, DateTime? startDate, DateTime? endDate, int? venueId, string availability)
         {
-            // This method is for the booking specialist without any login check
-            return RedirectToAction("Manage"); // Redirect to the manage method with full access
+            var query = _context.BookingDetails.AsQueryable();
+
+            // Filter by search term
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                ViewBag.SearchTerm = searchTerm;
+
+                if (int.TryParse(searchTerm, out int bookingId))
+                {
+                    query = query.Where(b => b.BookingId == bookingId || b.EventName.Contains(searchTerm));
+                }
+                else
+                {
+                    query = query.Where(b => b.EventName.Contains(searchTerm));
+                }
+            }
+
+            // Filter by event type
+            if (eventTypeId.HasValue && eventTypeId.Value > 0)
+            {
+                ViewBag.SelectedEventTypeId = eventTypeId.Value;
+
+                query = from bd in query
+                        join e in _context.Events on bd.EventId equals e.EventId
+                        where e.EventTypeId == eventTypeId.Value
+                        select bd;
+            }
+
+            // Filter by venue
+            if (venueId.HasValue && venueId.Value > 0)
+            {
+                ViewBag.SelectedVenueId = venueId.Value;
+                query = query.Where(b => b.VenueId == venueId.Value);
+            }
+
+            // Filter by date range
+            if (startDate.HasValue)
+            {
+                ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+                query = query.Where(b => b.BookingDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+                query = query.Where(b => b.BookingDate <= endDate.Value);
+            }
+
+            // Execute the query first to get the filtered bookings
+            var bookings = await query.ToListAsync();
+
+            // Filter by venue availability AFTER getting the bookings
+            if (!string.IsNullOrWhiteSpace(availability))
+            {
+                ViewBag.SelectedAvailability = availability;
+
+                if (availability == "Available")
+                {
+                    // Show bookings for venues that have the "Available" status in the database
+                    var availableVenueIds = await _context.Venues
+                        .Where(v => v.Availability == "Available")
+                        .Select(v => v.VenueId)
+                        .ToListAsync();
+
+                    bookings = bookings.Where(b => availableVenueIds.Contains((int)b.VenueId)).ToList();
+                }
+                else if (availability == "Unavailable")
+                {
+                    // Show bookings for venues that have the "Unavailable" status in the database
+                    var unavailableVenueIds = await _context.Venues
+                        .Where(v => v.Availability == "Unavailable")
+                        .Select(v => v.VenueId)
+                        .ToListAsync();
+
+                    bookings = bookings.Where(b => unavailableVenueIds.Contains((int)b.VenueId)).ToList();
+                }
+            }
+
+            // Load dropdown data
+            ViewBag.EventTypes = await _context.EventTypes
+                .OrderBy(et => et.Name)
+                .ToListAsync();
+
+            ViewBag.Venues = await _context.Venues
+                .OrderBy(v => v.VenueName)
+                .ToListAsync();
+
+            return View(bookings);
+        }
+        // Helper method to get available venues for a specific date
+        private async Task<List<Venue>> GetAvailableVenuesForDate(DateTime date)
+        {
+            var bookedVenueIds = await _context.Bookings
+                .Where(b => b.BookingDate.Date == date.Date)
+                .Select(b => b.VenueId)
+                .ToListAsync();
+
+            return await _context.Venues
+                .Where(v => !bookedVenueIds.Contains(v.VenueId))
+                .OrderBy(v => v.VenueName)
+                .ToListAsync();
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> Manage(string searchTerm)
-
+     
+        // Method to sync venue availability based on current bookings
+        public async Task<IActionResult> SyncVenueAvailability()
         {
-            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var venues = await _context.Venues.ToListAsync();
+            int updatedCount = 0;
 
-            // Check for the booking specialist access
-
-            if (userEmail == BookingSpecialistEmail)
+            foreach (var venue in venues)
             {
-                // Continue to fetch bookings
+                // Check if venue has any future bookings (including today)
+                var hasFutureBookings = await _context.Bookings
+                    .AnyAsync(b => b.VenueId == venue.VenueId && b.BookingDate >= DateTime.Now.Date);
 
-                var query = _context.BookingDetails.AsQueryable();
-                if (!string.IsNullOrEmpty(searchTerm))
+                string newAvailability = hasFutureBookings ? "Unavailable" : "Available";
 
+                // Only update if the status has changed
+                if (venue.Availability != newAvailability)
                 {
-
-                    if (int.TryParse(searchTerm, out int bookingId))
-                    {
-                        query = query.Where(b => b.BookingId == bookingId || b.EventName.Contains(searchTerm));
-                    }
-                    else
-                    {
-                        query = query.Where(b => b.EventName.Contains(searchTerm));
-                    }
-                    ViewBag.SearchTerm = searchTerm;
+                    venue.Availability = newAvailability;
+                    updatedCount++;
                 }
-                var bookings = await query.ToListAsync();
-                return View(bookings);
             }
-            // If the user is not the booking specialist, show an unauthorized message or redirect
-            return Unauthorized("You do not have access to manage bookings.");
 
+            if (updatedCount > 0)
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Venue availability synchronized! {updatedCount} venue(s) updated.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Venue availability is already up to date.";
+            }
+
+            return RedirectToAction("Manage");
+        }
+
+        // Method to sync venue availability for a specific date
+        public async Task<IActionResult> SyncVenueAvailabilityForDate(DateTime? date)
+        {
+            DateTime targetDate = date ?? DateTime.Now.Date;
+            var venues = await _context.Venues.ToListAsync();
+            int updatedCount = 0;
+
+            foreach (var venue in venues)
+            {
+                // Check if venue has bookings for the specific date
+                var hasBookingsOnDate = await _context.Bookings
+                    .AnyAsync(b => b.VenueId == venue.VenueId && b.BookingDate.Date == targetDate.Date);
+
+                string newAvailability = hasBookingsOnDate ? "Unavailable" : "Available";
+
+                // Only update if the status has changed
+                if (venue.Availability != newAvailability)
+                {
+                    venue.Availability = newAvailability;
+                    updatedCount++;
+                }
+            }
+
+            if (updatedCount > 0)
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Venue availability synchronized for {targetDate.ToString("MM/dd/yyyy")}! {updatedCount} venue(s) updated.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = $"Venue availability is already up to date for {targetDate.ToString("MM/dd/yyyy")}.";
+            }
+
+            return RedirectToAction("Manage");
+        }
+
+        // Helper method to automatically sync availability when bookings are created/updated/deleted
+        private async Task SyncVenueAvailabilityForVenue(int venueId)
+        {
+            var venue = await _context.Venues.FindAsync(venueId);
+            if (venue != null)
+            {
+                // Check if venue has any future bookings
+                var hasFutureBookings = await _context.Bookings
+                    .AnyAsync(b => b.VenueId == venueId && b.BookingDate >= DateTime.Now.Date);
+
+                string newAvailability = hasFutureBookings ? "Unavailable" : "Available";
+
+                if (venue.Availability != newAvailability)
+                {
+                    venue.Availability = newAvailability;
+                    await _context.SaveChangesAsync();
+                }
+            }
         }
 
         // GET: Booking/Details/5
@@ -426,5 +606,6 @@ namespace EventEase.Controllers
 
             return View(bookingDetails);
         }
+        
     }
 }

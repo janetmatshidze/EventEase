@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventEase.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EventEase.Controllers
 {
@@ -24,19 +25,28 @@ namespace EventEase.Controllers
         public async Task<IActionResult> Index()
         {
             // Fetch events 
-            var events = await _context.Events.ToListAsync();
+            var events = await _context.Events
+         .Include(e => e.EventType) // Include EventType for each event
+         .ToListAsync();
 
             // Create view model
             var viewModel = new EventViewModel(events);
 
+
+
             return View(viewModel);
+
+
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewBag.EventTypes = await _context.EventTypes
+                .OrderBy(et => et.Name)
+                .ToListAsync();
+
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Event eventModel)
@@ -44,16 +54,29 @@ namespace EventEase.Controllers
             // Remove ImageFile validation if only ImageUpload is required
             ModelState.Remove("ImageFile");
 
+            // Remove EventType navigation property validation since we're setting EventTypeId
+            ModelState.Remove("EventType");
+
+            // Load event types before any logic, so they're available to the view regardless
+            ViewBag.EventTypes = await _context.EventTypes
+                .OrderBy(et => et.Name)
+                .ToListAsync();
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Handle image upload
                     if (eventModel.ImageUpload != null)
                     {
-                        // Upload to Azure Blob Storage
                         eventModel.ImageFile = await _blobStorageService.UploadFileAsync(eventModel.ImageUpload);
                         Console.WriteLine($"Uploaded image to: {eventModel.ImageFile}");
+                    }
+
+                    // Ensure EventTypeId is set correctly
+                    if (eventModel.EventTypeId <= 0)
+                    {
+                        ModelState.AddModelError("EventTypeId", "Please select an event type.");
+                        return View(eventModel);
                     }
 
                     _context.Events.Add(eventModel);
@@ -66,7 +89,6 @@ namespace EventEase.Controllers
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error saving event: {ex.Message}");
-                    Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
                     ModelState.AddModelError("", $"Could not save to database: {ex.Message}");
                 }
             }
@@ -84,7 +106,7 @@ namespace EventEase.Controllers
 
             return View(eventModel);
         }
-
+        // Optimal Edit GET method using SelectList
         public async Task<IActionResult> Edit(int id)
         {
             var eventModel = await _context.Events.FindAsync(id);
@@ -93,9 +115,18 @@ namespace EventEase.Controllers
                 return NotFound();
             }
 
+            // Create SelectList with the current event's EventTypeId pre-selected
+            ViewBag.EventTypes = new SelectList(
+                await _context.EventTypes.OrderBy(et => et.Name).ToListAsync(),
+                "EventTypeId",  // Value field
+                "Name",         // Text field  
+                eventModel.EventTypeId  // Selected value
+            );
+
             return View(eventModel);
         }
 
+        // Updated Edit POST method
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Event eventModel)
@@ -105,9 +136,10 @@ namespace EventEase.Controllers
                 return NotFound();
             }
 
-            // Remove ImageFile and ImageUpload validation
+            // Remove ImageFile, ImageUpload, and EventType validation
             ModelState.Remove("ImageFile");
             ModelState.Remove("ImageUpload");
+            ModelState.Remove("EventType");
 
             if (ModelState.IsValid)
             {
@@ -142,6 +174,12 @@ namespace EventEase.Controllers
                         {
                             Console.WriteLine($"Image upload error: {ex.Message}");
                             ModelState.AddModelError("ImageUpload", "Failed to upload image. Please try again.");
+
+                            // Repopulate SelectList for error case
+                            ViewBag.EventTypes = new SelectList(
+                                await _context.EventTypes.OrderBy(et => et.Name).ToListAsync(),
+                                "EventTypeId", "Name", eventModel.EventTypeId);
+
                             return View(eventModel);
                         }
                     }
@@ -175,8 +213,14 @@ namespace EventEase.Controllers
                     ModelState.AddModelError("", $"Error updating: {ex.Message}");
                 }
             }
-            else
+
+            // Repopulate SelectList if validation fails
+            if (!ModelState.IsValid)
             {
+                ViewBag.EventTypes = new SelectList(
+                    await _context.EventTypes.OrderBy(et => et.Name).ToListAsync(),
+                    "EventTypeId", "Name", eventModel.EventTypeId);
+
                 // Log validation errors
                 foreach (var state in ModelState)
                 {

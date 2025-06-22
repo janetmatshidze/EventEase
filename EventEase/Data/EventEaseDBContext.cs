@@ -11,6 +11,7 @@ namespace EventEase.Data
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<EventType> EventTypes { get; set; }
 
         public DbSet<BookingDetails> BookingDetails { get; set; }
 
@@ -39,8 +40,7 @@ namespace EventEase.Data
          modelBuilder.Entity<BookingDetails>()
         .HasNoKey()
         .ToView("vw_BookingDetails");
-            // Let EF Core conventions handle the other entities
-            // You can add similar configurations for User, Venue, and Booking if needed
+          
         }
     }
 }

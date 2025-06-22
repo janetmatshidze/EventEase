@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\matsh\\source\\repos\\EventEase\\EventEase\\EventEase.csproj": {}
+    "C:\\Users\\matsh\\source\\repos\\EventEase (2)\\EventEase\\EventEase\\EventEase.csproj": {}
   },
   "projects": {
-    "C:\\Users\\matsh\\source\\repos\\EventEase\\EventEase\\EventEase.csproj": {
+    "C:\\Users\\matsh\\source\\repos\\EventEase (2)\\EventEase\\EventEase\\EventEase.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\matsh\\source\\repos\\EventEase\\EventEase\\EventEase.csproj",
+        "projectUniqueName": "C:\\Users\\matsh\\source\\repos\\EventEase (2)\\EventEase\\EventEase\\EventEase.csproj",
         "projectName": "EventEase",
-        "projectPath": "C:\\Users\\matsh\\source\\repos\\EventEase\\EventEase\\EventEase.csproj",
+        "projectPath": "C:\\Users\\matsh\\source\\repos\\EventEase (2)\\EventEase\\EventEase\\EventEase.csproj",
         "packagesPath": "C:\\Users\\matsh\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\matsh\\source\\repos\\EventEase\\EventEase\\obj\\",
+        "outputPath": "C:\\Users\\matsh\\source\\repos\\EventEase (2)\\EventEase\\EventEase\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -59,6 +59,12 @@
               "version": "[8.2.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.2, )"
             },
@@ -90,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

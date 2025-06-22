@@ -24,9 +24,14 @@ namespace EventEase.Models
 
         public string ImageFile { get; set; }
 
+        [StringLength(50)]
+        public string Availability { get; set; } = "Available";
+
         [NotMapped]
         [Display(Name = "Upload Image")]
         [Required(ErrorMessage = "Please select an image file")]
         public IFormFile ImageUpload { get; set; }
+
+        public virtual ICollection<Booking>? Bookings { get; set; }
     }
 }
